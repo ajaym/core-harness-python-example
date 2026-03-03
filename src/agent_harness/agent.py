@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -20,7 +21,43 @@ from agent_harness.tools_registry import create_custom_tools_server
 logger = logging.getLogger(__name__)
 
 
-@dataclass
+def _extract_root_cause(exc: Exception, stderr_lines: list[str]) -> str:
+    """Extract a user-friendly error message from SDK exceptions.
+
+    The SDK often wraps the real error (e.g. "Credit balance is too low") inside
+    opaque TaskGroup / CLIConnectionError exceptions.  We check CLI stderr output
+    and the full exception chain to surface the actual cause.
+    """
+    # Check CLI stderr first — most reliable source
+    if stderr_lines:
+        meaningful = [l for l in stderr_lines if l.strip()]
+        if meaningful:
+            return meaningful[-1]
+
+    # Walk the exception chain / group for an inner message
+    msg = str(exc)
+    if isinstance(exc, BaseExceptionGroup):
+        for inner in exc.exceptions:
+            inner_msg = str(inner)
+            # Prefer messages that aren't just transport plumbing
+            if "ProcessTransport" not in inner_msg:
+                return inner_msg
+            # Check __cause__
+            if inner.__cause__:
+                cause_msg = str(inner.__cause__)
+                if "ProcessTransport" not in cause_msg:
+                    return cause_msg
+
+    # Check for "Error output:" pattern from SDK
+    if "Error output:" in msg:
+        parts = msg.split("Error output:")
+        if len(parts) > 1:
+            return parts[-1].strip()
+
+    return msg
+
+
+@dataclass(frozen=True)
 class AgentResult:
     """Result of an agent execution."""
 
@@ -69,8 +106,18 @@ def _build_agent_options(
     try:
         custom_server = create_custom_tools_server()
         mcp_servers["custom-tools"] = custom_server
-    except Exception:
-        logger.warning("Failed to create in-process MCP server, skipping", exc_info=True)
+    except ImportError:
+        logger.warning(
+            "claude_agent_sdk MCP server creation not available. "
+            "Custom tools (lookup_user, run_query) will be unavailable."
+        )
+    except Exception as e:
+        logger.error(
+            "Failed to create custom tools MCP server: %s. "
+            "Custom tools will be unavailable.",
+            e,
+            exc_info=True,
+        )
 
     if mcp_servers:
         kwargs["mcp_servers"] = mcp_servers
@@ -93,6 +140,12 @@ def _build_agent_options(
                 agent_def.tools = sub_config.tools
             agents[name] = agent_def
         kwargs["agents"] = agents
+
+    # Strip CLAUDECODE env var to allow running from within a Claude Code session.
+    # The bundled CLI refuses to start if it detects a parent Claude Code process.
+    # We must remove it from os.environ directly because the SDK merges os.environ
+    # into the subprocess env, and the CLI checks for the variable's existence (not value).
+    os.environ.pop("CLAUDECODE", None)
 
     return ClaudeAgentOptions(**kwargs)
 
@@ -118,6 +171,17 @@ async def run_agent(
 
     response_parts: list[str] = []
     session_id: str | None = None
+    cli_stderr_lines: list[str] = []
+
+    # Capture CLI stderr to surface the real error when the SDK gives opaque messages
+    original_stderr = options.stderr
+
+    def _capture_stderr(line: str) -> None:
+        cli_stderr_lines.append(line.rstrip())
+        if original_stderr:
+            original_stderr(line)
+
+    options.stderr = _capture_stderr
 
     try:
         async for message in query(prompt=prompt, options=options):
@@ -141,10 +205,15 @@ async def run_agent(
             ):
                 session_id = message.session_id
 
+    except KeyboardInterrupt:
+        logger.info("Agent execution interrupted by user")
+        raise
     except Exception as e:
-        logger.error("Agent execution failed: %s", e)
+        # Try to extract the real error from CLI stderr or the exception chain
+        root_cause = _extract_root_cause(e, cli_stderr_lines)
+        logger.error("Agent execution failed: %s", root_cause)
         return AgentResult(
-            response_text=str(e),
+            response_text=root_cause,
             session_id=session_id,
             exit_code=1,
         )
