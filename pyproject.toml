@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agent-harness"
+version = "0.1.0"
+description = "Reference implementation for building Claude-powered agents in Python"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [{ name = "Ajay Mehta" }]
+dependencies = [
+    "claude-agent-sdk",
+    "pydantic>=2.0",
+    "click>=8.0",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "pytest-mock>=3.0",
+    "pytest-timeout>=2.0",
+    "mypy>=1.0",
+    "ruff>=0.4",
+]
+
+[project.scripts]
+agent-harness = "agent_harness.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+timeout = 10
+
+[tool.mypy]
+strict = true
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]

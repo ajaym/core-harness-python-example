@@ -1,0 +1,34 @@
+# Agent Harness Configuration
+# See README.md for full documentation of all options.
+
+# Model to use for the agent
+model = "claude-sonnet-4-6"
+
+# Built-in SDK tools to enable
+allowed_tools = ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
+
+# Directory containing Agent Skills
+skills_dir = ".claude/skills"
+
+# Permission mode for agent operations
+# Options: "default", "acceptEdits", "bypassPermissions", "plan"
+permission_mode = "bypassPermissions"
+
+# Optional custom system prompt (uncomment to use)
+# system_prompt = "You are a helpful coding assistant."
+
+# External MCP server declarations
+# [mcp_servers.playwright]
+# command = "npx"
+# args = ["@playwright/mcp@latest"]
+
+# [mcp_servers.github]
+# command = "npx"
+# args = ["-y", "@modelcontextprotocol/server-github"]
+# env = { GITHUB_PERSONAL_ACCESS_TOKEN = "${GITHUB_TOKEN}" }
+
+# Subagent definitions
+# [subagents.code-reviewer]
+# description = "Reviews code for bugs, style issues, and best practices"
+# prompt = "You are a code reviewer. Analyze the provided code for bugs, style issues, and best practices."
+# tools = ["Read", "Glob", "Grep"]
