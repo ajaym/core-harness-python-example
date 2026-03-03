@@ -224,35 +224,35 @@ The Python harness maintains feature parity with the TypeScript version while be
 **Goal:** Quality-of-life features for power users and CI integration.
 
 ### 5.1 Unified Configuration File (P1-1)
-- [ ] Finalize `harness.toml` schema — consolidates provider, tools, MCP, skills, permissions, subagents
-- [ ] Pydantic validation with clear error messages
-- [ ] Create example `harness.toml` with all sections documented via comments
+- [x] Finalize `harness.toml` schema — consolidates provider, tools, MCP, skills, permissions, subagents
+- [x] Pydantic validation with clear error messages
+- [x] Create example `harness.toml` with all sections documented via comments
 
 ### 5.2 Session Resumption (P1-2)
-- [ ] Add `--resume <session-id>` CLI flag
-- [ ] Print session ID at start of each run
-- [ ] Pass session ID to Agent SDK for context continuation
+- [x] Add `--resume <session-id>` CLI flag
+- [x] Print session ID at start of each run
+- [x] Pass session ID to Agent SDK for context continuation
 
 ### 5.3 Subagent Definitions (P1-3)
-- [ ] Add `subagents` section to config schema
-- [ ] Each subagent: `name`, `description`, `prompt`, `tools`
-- [ ] Include example subagent (e.g., code-reviewer)
+- [x] Add `subagents` section to config schema
+- [x] Each subagent: `name`, `description`, `prompt`, `tools`
+- [x] Include example subagent (e.g., code-reviewer)
 
 ### 5.4 Permission Modes (P1-4)
-- [ ] Add `--permission-mode` CLI flag and config field
-- [ ] Support `bypassPermissions`, `acceptEdits`, `default`, `plan` modes
-- [ ] Default: `bypassPermissions` for automated use
-- [ ] Document security implications
+- [x] Add `--permission-mode` CLI flag and config field
+- [x] Support `bypassPermissions`, `acceptEdits`, `default`, `plan` modes
+- [x] Default: `bypassPermissions` for automated use
+- [x] Document security implications
 
 ### 5.5 Structured JSON Output (P1-5)
-- [ ] Implement `--output json` flag
-- [ ] Emit newline-delimited JSON events with `type`, `timestamp`, `payload`
-- [ ] Final event includes complete agent response
+- [x] Implement `--output json` flag
+- [x] Emit newline-delimited JSON events with `type`, `timestamp`, `payload`
+- [x] Final event includes complete agent response
 
 ### 5.6 Hook System (P1-6)
-- [ ] Expose SDK hook system via `ClaudeAgentOptions.hooks`
-- [ ] Include example hooks: audit logger, dangerous-command blocker, read-only auto-approver
-- [ ] Document hook registration
+- [x] Expose SDK hook system via `ClaudeAgentOptions.hooks`
+- [x] Include example hooks: audit logger, dangerous-command blocker, read-only auto-approver
+- [x] Document hook registration
 
 ---
 

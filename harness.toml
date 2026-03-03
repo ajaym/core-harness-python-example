@@ -1,23 +1,52 @@
-# Agent Harness Configuration
-# See README.md for full documentation of all options.
+# =============================================================================
+# Agent Harness Configuration — harness.toml
+# =============================================================================
+# This file consolidates all harness settings: provider, tools, MCP servers,
+# skills, permissions, and subagents. Environment variables override values set
+# here (env takes precedence).
+#
+# Environment variable overrides:
+#   HARNESS_MODEL           → model
+#   HARNESS_PERMISSION_MODE → permission_mode
+#   HARNESS_SYSTEM_PROMPT   → system_prompt
+#   HARNESS_SKILLS_DIR      → skills_dir
+#
+# Provider is controlled separately via:
+#   ANTHROPIC_API_KEY        → Anthropic API (default)
+#   CLAUDE_CODE_USE_BEDROCK=1 + AWS creds → AWS Bedrock
+# =============================================================================
 
 # Model to use for the agent
 model = "claude-sonnet-4-6"
 
 # Built-in SDK tools to enable
+# Available: Read, Write, Edit, Bash, Glob, Grep, WebSearch, WebFetch
 allowed_tools = ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
 
-# Directory containing Agent Skills
+# Directory containing Agent Skills (folders with SKILL.md files)
 skills_dir = ".claude/skills"
 
 # Permission mode for agent operations
-# Options: "default", "acceptEdits", "bypassPermissions", "plan"
+# Options:
+#   "default"             — Standard permission behavior (prompts for approval)
+#   "acceptEdits"         — Auto-accept file edits
+#   "bypassPermissions"   — Bypass all permission checks (use with caution)
+#   "plan"                — Planning mode (no execution)
 permission_mode = "bypassPermissions"
 
 # Optional custom system prompt (uncomment to use)
 # system_prompt = "You are a helpful coding assistant."
 
-# External MCP server declarations
+# =============================================================================
+# External MCP Server Declarations
+# =============================================================================
+# Each server needs a [mcp_servers.<name>] section with:
+#   command (required) — executable to run
+#   args (optional)    — command arguments
+#   env (optional)     — environment variables (supports ${VAR} interpolation)
+#
+# Alternatively, declare servers in mcp-servers.json (TOML takes precedence).
+
 # [mcp_servers.playwright]
 # command = "npx"
 # args = ["@playwright/mcp@latest"]
@@ -27,8 +56,24 @@ permission_mode = "bypassPermissions"
 # args = ["-y", "@modelcontextprotocol/server-github"]
 # env = { GITHUB_PERSONAL_ACCESS_TOKEN = "${GITHUB_TOKEN}" }
 
-# Subagent definitions
+# [mcp_servers.filesystem]
+# command = "npx"
+# args = ["-y", "@modelcontextprotocol/server-filesystem", "./data"]
+
+# =============================================================================
+# Subagent Definitions
+# =============================================================================
+# Each subagent needs a [subagents.<name>] section with:
+#   description (required) — when to use this agent
+#   prompt (required)      — the agent's system prompt
+#   tools (optional)       — list of allowed tools (inherits all if omitted)
+
 # [subagents.code-reviewer]
 # description = "Reviews code for bugs, style issues, and best practices"
 # prompt = "You are a code reviewer. Analyze the provided code for bugs, style issues, and best practices."
+# tools = ["Read", "Glob", "Grep"]
+
+# [subagents.security-auditor]
+# description = "Audits code for security vulnerabilities"
+# prompt = "You are a security auditor. Analyze code for OWASP Top 10 vulnerabilities."
 # tools = ["Read", "Glob", "Grep"]
