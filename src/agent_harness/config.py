@@ -11,6 +11,16 @@ from pydantic import BaseModel, Field, field_validator
 
 from agent_harness.types import DEFAULT_TOOLS
 
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    try:
+        import tomli as tomllib  # type: ignore[import-not-found]
+    except ImportError as _exc:
+        raise ImportError(
+            "Python < 3.11 requires the 'tomli' package. Install it with: pip install tomli"
+        ) from _exc
+
 
 class MCPServerConfig(BaseModel):
     """Configuration for an external MCP server."""
@@ -70,14 +80,6 @@ def load_config(config_path: Path | None = None) -> HarnessConfig:
         config_path = Path("harness.toml")
 
     if config_path.exists():
-        if sys.version_info >= (3, 11):
-            import tomllib
-        else:
-            try:
-                import tomli as tomllib  # type: ignore[no-redefine]
-            except ImportError:
-                import tomllib  # type: ignore[no-redefine]
-
         with open(config_path, "rb") as f:
             data = tomllib.load(f)
 

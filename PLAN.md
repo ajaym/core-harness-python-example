@@ -2,7 +2,7 @@
 
 **Source PRD:** [PRD-agent-harness-python.md](./PRD-agent-harness-python.md) (v1.0)
 **Reference Implementation:** [TypeScript Agent Harness](../core-harness-example/)
-**Plan Status:** In Progress
+**Plan Status:** Complete
 **Last Updated:** 2026-03-02
 
 ---
@@ -258,16 +258,16 @@ The Python harness maintains feature parity with the TypeScript version while be
 
 ## Phase 6: Documentation & Polish (Week 5)
 
-- [ ] Write comprehensive README.md with quickstart, configuration reference, architecture overview
-- [ ] Document all CLI flags, config options, and environment variables
-- [ ] Document in-process MCP tool authoring with `@tool` decorator examples
-- [ ] Document skill creation and directory conventions
-- [ ] Add inline code comments for complex logic
-- [ ] Run `mypy --strict` and fix all errors
-- [ ] Run `ruff check` and `ruff format` and fix all issues
-- [ ] Ensure all acceptance criteria from PRD are met
-- [ ] Final pass on error messages and developer experience
-- [ ] Create `CLAUDE.md` with project context (if decided — Open Question #5)
+- [x] Write comprehensive README.md with quickstart, configuration reference, architecture overview
+- [x] Document all CLI flags, config options, and environment variables
+- [x] Document in-process MCP tool authoring with `@tool` decorator examples
+- [x] Document skill creation and directory conventions
+- [x] Add inline code comments for complex logic
+- [x] Run `mypy --strict` and fix all errors
+- [x] Run `ruff check` and `ruff format` and fix all issues
+- [x] Ensure all acceptance criteria from PRD are met
+- [x] Final pass on error messages and developer experience
+- [x] Create `CLAUDE.md` with project context (if decided — Open Question #5)
 
 ---
 
