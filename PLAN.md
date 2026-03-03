@@ -2,7 +2,7 @@
 
 **Source PRD:** [PRD-agent-harness-python.md](./PRD-agent-harness-python.md) (v1.0)
 **Reference Implementation:** [TypeScript Agent Harness](../core-harness-example/)
-**Plan Status:** Not Started
+**Plan Status:** In Progress
 **Last Updated:** 2026-03-02
 
 ---
@@ -20,22 +20,22 @@ The Python harness maintains feature parity with the TypeScript version while be
 **Goal:** An installable Python package that accepts CLI args and runs an agent against the Anthropic API.
 
 ### 1.1 Project Setup (P0-8)
-- [ ] Create `pyproject.toml` with hatchling build backend, project metadata, dependencies, and tool config
-- [ ] Create `src/agent_harness/__init__.py` with package version
-- [ ] Create `src/agent_harness/__main__.py` — enables `python -m agent_harness`
-- [ ] Create `.env.example` with `ANTHROPIC_API_KEY`, `CLAUDE_CODE_USE_BEDROCK`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
-- [ ] Create `.gitignore` — `__pycache__/`, `*.egg-info/`, `.env`, `dist/`, `evals/results/`, `.mypy_cache/`, `.pytest_cache/`, `.ruff_cache/`
-- [ ] Initialize git repository
-- [ ] Verify `pip install -e ".[dev]"` succeeds
+- [x] Create `pyproject.toml` with hatchling build backend, project metadata, dependencies, and tool config
+- [x] Create `src/agent_harness/__init__.py` with package version
+- [x] Create `src/agent_harness/__main__.py` — enables `python -m agent_harness`
+- [x] Create `.env.example` with `ANTHROPIC_API_KEY`, `CLAUDE_CODE_USE_BEDROCK`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
+- [x] Create `.gitignore` — `__pycache__/`, `*.egg-info/`, `.env`, `dist/`, `evals/results/`, `.mypy_cache/`, `.pytest_cache/`, `.ruff_cache/`
+- [x] Initialize git repository
+- [x] Verify `pip install -e ".[dev]"` succeeds
 
 ### 1.2 Shared Types (P0-8)
-- [ ] Create `src/agent_harness/types.py`
+- [x] Create `src/agent_harness/types.py`
   - `ToolName` literal type: `Read`, `Write`, `Edit`, `Bash`, `Glob`, `Grep`, `WebSearch`, `WebFetch`
   - Type aliases for provider configs, skill info, MCP server configs
   - All types use `from __future__ import annotations` for forward references
 
 ### 1.3 Config Loading & Validation (P0-4, P1-1)
-- [ ] Create `src/agent_harness/config.py`
+- [x] Create `src/agent_harness/config.py`
   - `HarnessConfig` Pydantic model: `model`, `allowed_tools`, `skills_dir`, `mcp_servers`, `permission_mode`, `system_prompt`
   - `MCPServerConfig` Pydantic model: `command`, `args`, `env` with `${VAR}` interpolation
   - `load_config()` function: reads `harness.toml` if present, falls back to defaults
@@ -44,15 +44,15 @@ The Python harness maintains feature parity with the TypeScript version while be
   - Use stdlib `tomllib` (Python 3.11+) with `tomli` fallback for 3.10
 
 ### 1.4 CLI Entry Point (P0-1)
-- [ ] Create `src/agent_harness/cli.py`
+- [x] Create `src/agent_harness/cli.py`
   - Click command with options: `--prompt` (required), `--cwd`, `--output`, `--resume`, `--permission-mode`
   - Validate inputs, load config, resolve provider, discover skills, load MCP servers
   - Call agent execution and stream output to stdout
   - Exit code 0 on success, non-zero on failure
-- [ ] Wire up `pyproject.toml` `[project.scripts]` entry point: `agent-harness = "agent_harness.cli:main"`
+- [x] Wire up `pyproject.toml` `[project.scripts]` entry point: `agent-harness = "agent_harness.cli:main"`
 
 ### 1.5 Provider Resolution (P0-2)
-- [ ] Create `src/agent_harness/providers.py`
+- [x] Create `src/agent_harness/providers.py`
   - Detect provider from env: `CLAUDE_CODE_USE_BEDROCK=1` → Bedrock, else Anthropic
   - Validate required credentials for selected provider
   - `ANTHROPIC_API_KEY` for Anthropic; `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` for Bedrock
@@ -60,7 +60,7 @@ The Python harness maintains feature parity with the TypeScript version while be
   - Clear error messages for missing credentials
 
 ### 1.6 Agent Initialization & Execution (P0-2)
-- [ ] Create `src/agent_harness/agent.py`
+- [x] Create `src/agent_harness/agent.py`
   - Initialize Agent SDK with resolved provider, tools, MCP servers, and skills
   - Execute `query()` with the user's prompt
   - `async for message in query()` — stream to stdout
@@ -75,37 +75,37 @@ The Python harness maintains feature parity with the TypeScript version while be
 **Goal:** Full provider parity, external and in-process MCP tool integration, and skill loading.
 
 ### 2.1 AWS Bedrock Provider (P0-3)
-- [ ] Extend `src/agent_harness/providers.py` with Bedrock provider construction
+- [x] Extend `src/agent_harness/providers.py` with Bedrock provider construction
   - Validate Bedrock credentials at startup
   - Same agent behavior regardless of provider
 
 ### 2.2 External MCP Server Integration (P0-5)
-- [ ] Create `src/agent_harness/mcp.py`
+- [x] Create `src/agent_harness/mcp.py`
   - Load MCP server declarations from `mcp-servers.json` (or `mcp_servers` section in `harness.toml`)
   - Validate each server has required `command` field
   - Support `${VAR_NAME}` interpolation in `env` blocks
   - Return parsed servers for Agent SDK consumption
-- [ ] Create `mcp-servers.json` with example configuration (e.g., Playwright, filesystem)
+- [x] Create `mcp-servers.json` with example configuration (e.g., Playwright, filesystem)
 
 ### 2.3 In-Process MCP Server (P0-6)
-- [ ] Create `src/agent_harness/tools_registry.py`
+- [x] Create `src/agent_harness/tools_registry.py`
   - Example tools using `@tool` decorator: `lookup_user`, `run_query`
   - `create_custom_tools_server()` function using `create_sdk_mcp_server()`
   - Register in-process server alongside external servers in `ClaudeAgentOptions.mcp_servers`
   - Document how to add new in-process tools
 
 ### 2.4 Agent Skills Loading (P0-7)
-- [ ] Create `src/agent_harness/skills.py`
+- [x] Create `src/agent_harness/skills.py`
   - Scan configurable skills directory (default: `./.claude/skills/`)
   - Discover folders containing `SKILL.md` files
   - Read and return skill content for Agent SDK `setting_sources`
   - Log discovered skills at startup
-- [ ] Create `.claude/skills/example-skill/SKILL.md` with sample skill content
+- [x] Create `.claude/skills/example-skill/SKILL.md` with sample skill content
 
 ### 2.5 Wire Everything Together
-- [ ] Update `agent.py` to pass MCP servers (external + in-process), skills, and full config to `query()`
-- [ ] Update `cli.py` to orchestrate the complete flow
-- [ ] Verify end-to-end: `python -m agent_harness --prompt "List files"` works with tools and skills
+- [x] Update `agent.py` to pass MCP servers (external + in-process), skills, and full config to `query()`
+- [x] Update `cli.py` to orchestrate the complete flow
+- [x] Verify end-to-end: `python -m agent_harness --prompt "List files"` works with tools and skills
 
 ---
 
@@ -114,37 +114,37 @@ The Python harness maintains feature parity with the TypeScript version while be
 **Goal:** Comprehensive unit test coverage for all non-agent-loop modules. No API keys needed.
 
 ### 3.1 Test Infrastructure (P0-9)
-- [ ] Configure pytest in `pyproject.toml` — `testpaths = ["tests"]`, `asyncio_mode = "auto"`, `timeout = 10`
-- [ ] Create `tests/__init__.py`
-- [ ] Verify `pytest tests/` runs and exits cleanly
+- [x] Configure pytest in `pyproject.toml` — `testpaths = ["tests"]`, `asyncio_mode = "auto"`, `timeout = 10`
+- [x] Create `tests/__init__.py`
+- [x] Verify `pytest tests/` runs and exits cleanly
 
 ### 3.2 Unit Test Files (P0-9)
-- [ ] `tests/test_config.py`
+- [x] `tests/test_config.py`
   - Valid TOML parsing into `HarnessConfig`
   - Missing optional fields use defaults
   - Environment variable overrides
   - Invalid/malformed config rejection with clear errors
   - `${VAR}` interpolation in MCP server env blocks
 
-- [ ] `tests/test_providers.py`
+- [x] `tests/test_providers.py`
   - Anthropic selected when `ANTHROPIC_API_KEY` is set
   - Bedrock selected when `CLAUDE_CODE_USE_BEDROCK=1`
   - Clear error when no credentials are present
   - Correct model and region propagation
 
-- [ ] `tests/test_skills.py`
+- [x] `tests/test_skills.py`
   - Discover skills from a populated directory
   - Handle empty skill directories
   - Ignore folders without `SKILL.md`
   - Report discovered skill names and paths
 
-- [ ] `tests/test_mcp.py`
+- [x] `tests/test_mcp.py`
   - Valid server declarations parsed correctly
   - Missing `command` field rejected
   - `${VAR}` interpolation resolves from environment
   - Empty/missing config file handled gracefully
 
-- [ ] `tests/test_cli.py`
+- [x] `tests/test_cli.py`
   - `--prompt` is required
   - `--cwd` sets working directory
   - `--output json` enables JSON mode
