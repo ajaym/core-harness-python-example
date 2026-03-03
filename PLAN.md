@@ -164,17 +164,17 @@ The Python harness maintains feature parity with the TypeScript version while be
 **Goal:** A structured eval system for testing agent behavior end-to-end with real API calls.
 
 ### 4.1 Eval Types & Helpers (P0-10)
-- [ ] Create `evals/helpers/__init__.py`
-- [ ] Create `evals/helpers/types.py`
+- [x] Create `evals/helpers/__init__.py`
+- [x] Create `evals/helpers/types.py`
   - `EvalTask`, `EvalResult`, `GradeResult`, `EvalGrader` dataclasses
   - Support for multi-trial runs and `pass@k` / `pass^k` metrics
 
-- [ ] Create `evals/helpers/run_agent.py`
+- [x] Create `evals/helpers/run_agent.py`
   - `run_agent(prompt, working_dir, options)` — wraps SDK `query()`
   - Captures tool calls, response text, duration, exit code, errors
   - Returns `EvalResult` dataclass
 
-- [ ] Create `evals/helpers/graders.py`
+- [x] Create `evals/helpers/graders.py`
   - `assert_output_contains(result, substring)` — case-insensitive
   - `assert_output_matches(result, pattern)` — regex match
   - `assert_tool_used(result, tool_name, count=None)`
@@ -184,36 +184,36 @@ The Python harness maintains feature parity with the TypeScript version while be
   - `assert_json_schema(result, pydantic_model)` — validate against Pydantic model
   - `assert_exit_code(result, code)`
 
-- [ ] Create `evals/helpers/model_grader.py`
+- [x] Create `evals/helpers/model_grader.py`
   - `grade_with_model(result, rubric, model=None)` — sends output + rubric to Claude
   - Returns `GradeResult` with score (1–5) and explanation
 
-- [ ] Create `evals/helpers/reporter.py`
+- [x] Create `evals/helpers/reporter.py`
   - Writes JSON result files to `evals/results/`
   - Includes run_id, suite, provider, task results, summary
 
 ### 4.2 Eval Configuration (P0-10)
-- [ ] Create `evals/conftest.py`
+- [x] Create `evals/conftest.py`
   - Register custom markers: `eval`, `slow`
   - Auto-skip if `ANTHROPIC_API_KEY` not set
   - Default timeout: 120 seconds
   - Sequential execution (no parallel)
 
 ### 4.3 Eval Fixtures (P0-10)
-- [ ] Create `evals/fixtures/sample_project/` — `main.py`, `utils.py`, `README.md`
-- [ ] Create `evals/fixtures/sample_skill/SKILL.md` — skill that enforces a specific output format
+- [x] Create `evals/fixtures/sample_project/` — `main.py`, `utils.py`, `README.md`
+- [x] Create `evals/fixtures/sample_skill/SKILL.md` — skill that enforces a specific output format
 
 ### 4.4 Eval Suites (P0-10)
-- [ ] `evals/suites/test_built_in_tools.py` (3 tasks)
+- [x] `evals/suites/test_built_in_tools.py` (3 tasks)
   - `test_file_listing_uses_glob` — list files, assert Glob tool used
   - `test_file_read_and_summarize` — read file, assert Read tool used and content present
   - `test_file_write_creates_file` — create file, assert file exists with content
 
-- [ ] `evals/suites/test_provider_parity.py` (2-3 tasks)
+- [x] `evals/suites/test_provider_parity.py` (2-3 tasks)
   - Parametrized tests running same prompt against Anthropic and Bedrock
   - Simple math task (no tools) and file analysis task (with tools)
 
-- [ ] `evals/suites/test_skills_loading.py` (2 tasks)
+- [x] `evals/suites/test_skills_loading.py` (2 tasks)
   - Verify skill influences agent behavior
   - Verify skill formatting instructions are followed
 
