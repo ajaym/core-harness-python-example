@@ -9,7 +9,7 @@ Python Agent Harness — a reference implementation for building Claude-powered 
 ```bash
 pip install -e ".[dev]"           # Install in dev mode
 pytest tests/                      # Unit tests (62 tests, no API key needed)
-pytest evals/                      # LLM evals (requires ANTHROPIC_API_KEY)
+python scripts/run_evals.py        # LLM evals (requires ANTHROPIC_API_KEY in .env)
 python -m mypy src/ --strict       # Type checking
 ruff check src/ tests/ evals/      # Linting
 ruff format src/ tests/ evals/     # Formatting

@@ -28,6 +28,7 @@ env/
 .pytest_cache/
 
 # Test / eval output
+eval-results.log
 evals/results/
 htmlcov/
 .coverage
