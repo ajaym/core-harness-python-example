@@ -5,6 +5,10 @@ from __future__ import annotations
 import os
 
 import pytest
+from dotenv import load_dotenv
+
+# Load .env so ANTHROPIC_API_KEY is available for eval tests
+load_dotenv()
 
 
 def pytest_configure(config: pytest.Config) -> None:

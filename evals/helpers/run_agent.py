@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import time
 from typing import Any
 
@@ -25,6 +26,10 @@ async def run_agent(
     Returns:
         EvalResult with response text, tool calls, duration, and exit code.
     """
+    # Unset CLAUDECODE to allow running the SDK inside a Claude Code session.
+    # The SDK checks for this env var and refuses to start a nested session.
+    saved_claudecode = os.environ.pop("CLAUDECODE", None)
+
     agent_options_kwargs: dict[str, Any] = {
         "permission_mode": "bypassPermissions",
     }
@@ -55,34 +60,40 @@ async def run_agent(
 
     try:
         async for message in query(prompt=prompt, options=agent_options):
-            # Capture text content
-            if hasattr(message, "content"):
-                for block in message.content:
-                    if hasattr(block, "text"):
-                        response_parts.append(block.text)
-                    if hasattr(block, "type") and block.type == "tool_use":
-                        tool_calls.append(
-                            {
-                                "name": getattr(block, "name", ""),
-                                "input": getattr(block, "input", {}),
-                            }
-                        )
+            if not hasattr(message, "content"):
+                continue
 
-            # Capture tool results
-            if (
-                hasattr(message, "type")
-                and message.type == "tool_result"
-                and hasattr(message, "content")
-            ):
-                for block in message.content:
-                    if hasattr(block, "text"):
-                        last_tool = tool_calls[-1] if tool_calls else None
-                        if last_tool:
-                            last_tool["output"] = block.text
+            for block in message.content:
+                block_class = type(block).__name__
+
+                if block_class == "TextBlock" and hasattr(block, "text"):
+                    response_parts.append(block.text)
+
+                elif block_class == "ToolUseBlock" and hasattr(block, "name"):
+                    tool_calls.append(
+                        {
+                            "name": block.name,
+                            "input": getattr(block, "input", {}),
+                        }
+                    )
+
+                elif block_class == "ToolResultBlock":
+                    # Attach tool output to the most recent tool call
+                    content = getattr(block, "content", None)
+                    if content and tool_calls:
+                        for sub in content if isinstance(content, list) else [content]:
+                            if hasattr(sub, "text"):
+                                tool_calls[-1]["output"] = sub.text
+                                break
 
     except Exception as e:
         errors.append(str(e))
         exit_code = 1
+
+    finally:
+        # Restore CLAUDECODE env var if it was set
+        if saved_claudecode is not None:
+            os.environ["CLAUDECODE"] = saved_claudecode
 
     duration = time.monotonic() - start_time
 
